@@ -2,10 +2,6 @@
 
 `squeegee` is a simple [Dropwizard-based](http://www.dropwizard.io/) HTTP pony to convert SVG documents in to PNG files using the [Batik](https://xmlgraphics.apache.org/batik) SVG transcoder.
 
-## Caveats
-
-You should not try to use this yet. It does not work.
-
 ## How to start the squeegee application
 
 1. Run `mvn clean install` to build your application
@@ -17,10 +13,6 @@ You should not try to use this yet. It does not work.
 ```
 curl -s -v -X POST -F svg=@example.svg http://localhost:8080
 ```
-
-## Health Check
-
-To see your applications health enter url `http://localhost:8081/healthcheck`
 
 ## See also
 

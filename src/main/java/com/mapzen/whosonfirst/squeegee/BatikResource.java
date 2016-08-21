@@ -16,7 +16,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileInputStream;
 
-import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
 import org.glassfish.jersey.media.multipart.FormDataParam;
 
 import javax.ws.rs.POST;
@@ -40,7 +39,7 @@ import org.apache.commons.io.IOUtils;
 @Produces("image/png")
 public class BatikResource {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(BatikResource.class);
+    private static final Logger logger = LoggerFactory.getLogger(BatikResource.class);
 
     public BatikResource() {
 	// pass
@@ -48,102 +47,133 @@ public class BatikResource {
 	
     @POST
     @Consumes(MediaType.MULTIPART_FORM_DATA)
-    public Response saveAsPNG(@FormDataParam("svg") String svgDoc){
+    public Response saveAsPNG(@FormDataParam("svg") String svgDoc, @FormDataParam("height") String pngHeight, @FormDataParam("width") String pngWidth){
 
-	// LOGGER.debug("SVG " + svgDoc);
+	File tmpFile;
+	
+	InputStream svgInStream;
+	FileOutputStream pngOutStream;
 
-	InputStream svgStream;
-	    
+	PNGTranscoder transcoder;
+	TranscoderInput transcoderInput;
+	TranscoderOutput transcoderOutput;
+
+	InputStream pngInStream;
+	BufferedImage pngBuffer;
+
+	ByteArrayOutputStream pngByteStream;
+
+	// Y U NO WORK?
+	
+	if (svgDoc == ""){
+	    return Response.status(Response.Status.BAD_REQUEST).entity("Missing SVG document").build();
+	}       
+
+	// To consider: hashing the SVG doc and caching the output...
+	// (20160821/thisisaaronland)
+	
 	try {
-	    svgStream = IOUtils.toInputStream(svgDoc, "UTF-8");
+	    svgInStream = IOUtils.toInputStream(svgDoc, "UTF-8");
 	}
 	
 	catch (Exception e){
-	    LOGGER.error("Failed to read SVG stream, because " + e.toString());
+	    logger.error("Failed to read SVG stream, because " + e.toString());
 	    return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e.toString()).build();
 	}
 	
-	PNGTranscoder t = new PNGTranscoder();	    
-	TranscoderInput input = new TranscoderInput(svgStream);
-
-	File tmpfile;
-	FileOutputStream ostream;
-	
+	// Here is where we have to create a tmpfile for Batik to write to either
+	// because it's the only way or because I don't know how to massage a TrancoderOutput
+	// thingy in to something that ImageIO knows how to deal with. Or both...
+	// 
+		
 	try {
-	    tmpfile = File.createTempFile("svg", ".png");
-	}
-	
-	catch (Exception e){
-	    LOGGER.error("Failed to create tmp file, because " + e.toString());
-	    return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e.toString()).build();
-	}
-
-	try {
-	    ostream = new FileOutputStream(tmpfile.toString());
-	}
-
-	catch (Exception e){
-	    LOGGER.error("Failed to create output stream, because " + e.toString());
-	    return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e.toString()).build();
-	}
-	    
-	// ByteArrayOutputStream ostream = new ByteArrayOutputStream();
-	TranscoderOutput output = new TranscoderOutput(ostream);
-
-	try {
-	    t.transcode(input, output);
+	    tmpFile = File.createTempFile("squeegee-", ".png");
 	}
 	
 	catch (Exception e){
-	    LOGGER.error("Failed to transcode SVG, because " + e.toString());
+	    logger.error("Failed to create tmp file, because " + e.toString());
 	    return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e.toString()).build();
 	}
 
 	try {
-	    ostream.flush();
-	    ostream.close();
+	    pngOutStream = new FileOutputStream(tmpFile.toString());
+	}
+
+	catch (Exception e){
+	    logger.error("Failed to create output stream, because " + e.toString());
+	    return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e.toString()).build();
+	}
+
+	// Here is where Batik is actually doing some work
+
+	transcoder = new PNGTranscoder();
+
+	transcoderInput = new TranscoderInput(svgInStream);
+	transcoderOutput = new TranscoderOutput(pngOutStream);
+
+	try {
+	    transcoder.transcode(transcoderInput, transcoderOutput);
+	}
+	
+	catch (Exception e){
+	    logger.error("Failed to transcode SVG, because " + e.toString());
+	    return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e.toString()).build();
+	}
+
+	try {
+	    pngOutStream.flush();
+	    pngOutStream.close();
 	}
 
 	catch (Exception e){
 	  return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e.toString()).build();
 	}
 
-	InputStream im;
-	BufferedImage buf;
-	
+	// here is where we return the new PNG file - see above for why a temp file...
+		    
 	try {
-	    im = new FileInputStream(tmpfile.toString());
+	    pngInStream = new FileInputStream(tmpFile.toString());
 	}
 
 	catch (Exception e){
-	    LOGGER.error("Failed to create input stream, because " + e.toString());
+	    logger.error("Failed to create input stream, because " + e.toString());
 	    return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e.toString()).build();
 	}
 
 	try {
-	    buf = ImageIO.read(im);
+	    tmpFile.delete();
+	}
+	
+	catch (Exception e){
+	    logger.error("Failed to delete tmp file " + tmpFile.getPath() + ", because " + e.toString());
+	    return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e.toString()).build();
+	}
+	    
+	try {
+	    pngBuffer = ImageIO.read(pngInStream);
 	}
 
 	catch (Exception e){
-	    LOGGER.error("Failed to read input stream, because " + e.toString());
+	    logger.error("Failed to read input stream, because " + e.toString());
 	    return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e.toString()).build();
 	}
-	
-	ByteArrayOutputStream bos = new ByteArrayOutputStream();
+
+	if ((pngWidth != null) && (pngHeight != null)){
+	    // please resize image here...
+	}
+       
+	pngByteStream = new ByteArrayOutputStream();
 
 	try {
-	    ImageIO.write(buf, "png", bos);
+	    ImageIO.write(pngBuffer, "png", pngByteStream);
 	}
 
 	catch (Exception e){
-	    LOGGER.error("Failed to write image buffer, because " + e.toString());
+	    logger.error("Failed to write image buffer, because " + e.toString());
 	    return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e.toString()).build();
 	}
 
-	
-	byte[] imageInBytes = bos.toByteArray();
-	
-	return Response.status(Response.Status.OK).entity(imageInBytes).build();
+	return Response.status(Response.Status.OK).entity(pngByteStream.toByteArray()).build();
     }
     
 }
