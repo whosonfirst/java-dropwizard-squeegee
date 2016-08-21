@@ -6,12 +6,7 @@ import org.apache.batik.transcoder.image.PNGTranscoder;
 import org.apache.batik.transcoder.TranscoderInput;
 import org.apache.batik.transcoder.TranscoderOutput;
 
-// import java.util.List;
-// import java.util.ArrayList;
-// import java.lang.StringBuilder;
-
-// import java.io.InputStream;
-// import java.io.BufferedInputStream;
+import java.io.InputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.ByteArrayInputStream;
 
@@ -31,6 +26,8 @@ import javax.ws.rs.core.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.apache.commons.io.IOUtils;
+    
 @Path(value = "/")
 @Produces("image/png")
 public class BatikResource {
@@ -45,8 +42,21 @@ public class BatikResource {
     @Consumes(MediaType.MULTIPART_FORM_DATA)
     public Response saveAsPNG(@FormDataParam("svg") String svgDoc){
 
+	// LOGGER.debug("SVG " + svgDoc);
+
+	InputStream svgStream;
+	    
+	try {
+	    svgStream = IOUtils.toInputStream(svgDoc, "UTF-8");
+	}
+	
+	catch (Exception e){
+	    LOGGER.error("Failed to read SVG stream, because " + e.toString());
+	    return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e.toString()).build();
+	}
+	
 	PNGTranscoder t = new PNGTranscoder();	    
-	TranscoderInput input = new TranscoderInput(svgDoc);
+	TranscoderInput input = new TranscoderInput(svgStream);
 	
 	ByteArrayOutputStream ostream = new ByteArrayOutputStream();
 	TranscoderOutput output = new TranscoderOutput(ostream);
@@ -56,7 +66,8 @@ public class BatikResource {
 	}
 	
 	catch (Exception e){
-	  return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e.toString()).build();
+	    LOGGER.error("Failed to transcode SVG, because " + e.toString());
+	    return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e.toString()).build();
 	}
 
 	try {
