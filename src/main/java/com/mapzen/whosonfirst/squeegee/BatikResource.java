@@ -84,7 +84,7 @@ public class BatikResource {
 	// Here is where we have to create a tmpfile for Batik to write to either
 	// because it's the only way or because I don't know how to massage a TrancoderOutput
 	// thingy in to something that ImageIO knows how to deal with. Or both...
-	// 
+	// (20160821/thisisaaronland)	
 		
 	try {
 	    tmpFile = File.createTempFile("squeegee-", ".png");
@@ -129,7 +129,7 @@ public class BatikResource {
 	  return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e.toString()).build();
 	}
 
-	// here is where we return the new PNG file - see above for why a temp file...
+	// Here is where we return the new PNG file - see above for why a temp file...
 		    
 	try {
 	    pngInStream = new FileInputStream(tmpFile.toString());
@@ -173,6 +173,8 @@ public class BatikResource {
 	    return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e.toString()).build();
 	}
 
+	// Here is a PNG file
+	
 	return Response.status(Response.Status.OK).entity(pngByteStream.toByteArray()).build();
     }
     
