@@ -31,12 +31,16 @@ import javax.ws.rs.core.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-@Path(value = "/batik")
+@Path(value = "/")
 @Produces("image/png")
 public class BatikResource {
-    
+
     private static final Logger LOGGER = LoggerFactory.getLogger(BatikResource.class);
 
+    public BatikResource() {
+	// pass
+    }
+	
     @POST
     @Consumes(MediaType.MULTIPART_FORM_DATA)
     public Response saveAsPNG(@FormDataParam("svg") String svgDoc){

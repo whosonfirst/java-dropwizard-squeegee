@@ -3,6 +3,7 @@ package com.mapzen.whosonfirst.squeegee;
 import io.dropwizard.Application;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
+import io.dropwizard.forms.MultiPartBundle;
 
 import java.net.URL;
 
@@ -21,14 +22,15 @@ public class squeegeeApplication extends Application<squeegeeConfiguration> {
 
     @Override
     public void initialize(final Bootstrap<squeegeeConfiguration> bootstrap) {
-        // TODO: application initialization
+	bootstrap.addBundle(new MultiPartBundle());	
     }
 
     @Override
     public void run(final squeegeeConfiguration configuration,
                     final Environment environment) {
 
-	environment.jersey().register(new BatikResource());
+	final BatikResource batik = new BatikResource();	
+	environment.jersey().register(batik);
 
 	// URL healthcheck_url = new URL("http://collection.cooperhewitt.org/objects/random/");
 	// environment.addHealthCheck(new InternetsHealthCheck(healthcheck_url));
