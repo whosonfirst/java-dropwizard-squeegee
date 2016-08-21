@@ -1,6 +1,6 @@
 # squeegee
 
-`squeegee` is a simple [Dropwizard]() HTTP pony to convert SVG documents in to PNG files using the [Batik]() SVG transcoder.
+`squeegee` is a simple [Dropwizard-based](http://www.dropwizard.io/) HTTP pony to convert SVG documents in to PNG files using the [Batik](https://xmlgraphics.apache.org/batik) SVG transcoder.
 
 ## Caveats
 
@@ -19,3 +19,4 @@ To see your applications health enter url `http://localhost:8081/healthcheck`
 ## See also
 
 * https://xmlgraphics.apache.org/batik/using/transcoder.html
+* http://www.dropwizard.io/1.0.0/docs/index.html
