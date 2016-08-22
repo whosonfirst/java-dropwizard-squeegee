@@ -33,7 +33,7 @@ Which would produce [this](examples/circles.png):
 
 ## Things that `squeegee` can't do yet
 
-* User-defined image dimensions - or more specifically, it doesn't resize images particularly well yet; you can pass a `height` and `width` parameter with your request and see for yourself
+* User-defined image dimensions - or more specifically, it doesn't resize images particularly well yet; you can pass a `height` and `width` parameter with your request and see for yourself but you should be aware _this functionality might still be removed_
 * User-defined (CSS) stylesheets
 * That other thing you're wondering about that I haven't thought of yet
 
