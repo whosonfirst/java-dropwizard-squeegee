@@ -12,10 +12,6 @@ import java.io.InputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.ByteArrayInputStream;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.FileInputStream;
-
 import org.glassfish.jersey.media.multipart.FormDataParam;
 
 import javax.ws.rs.POST;
@@ -49,10 +45,7 @@ public class BatikResource {
     @Consumes(MediaType.MULTIPART_FORM_DATA)
     public Response saveAsPNG(@FormDataParam("svg") String svgDoc, @FormDataParam("height") String pngHeight, @FormDataParam("width") String pngWidth){
 
-	File tmpFile;
-	
 	InputStream svgInStream;
-	FileOutputStream pngOutStream;
 
 	PNGTranscoder transcoder;
 	TranscoderInput transcoderInput;
@@ -81,35 +74,14 @@ public class BatikResource {
 	    return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e.toString()).build();
 	}
 	
-	// Here is where we have to create a tmpfile for Batik to write to either
-	// because it's the only way or because I don't know how to massage a TrancoderOutput
-	// thingy in to something that ImageIO knows how to deal with. Or both...
-	// (20160821/thisisaaronland)	
-		
-	try {
-	    tmpFile = File.createTempFile("squeegee-", ".png");
-	}
+	ByteArrayOutputStream baos = new ByteArrayOutputStream();
 	
-	catch (Exception e){
-	    logger.error("Failed to create tmp file, because " + e.toString());
-	    return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e.toString()).build();
-	}
-
-	try {
-	    pngOutStream = new FileOutputStream(tmpFile.toString());
-	}
-
-	catch (Exception e){
-	    logger.error("Failed to create output stream, because " + e.toString());
-	    return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e.toString()).build();
-	}
-
 	// Here is where Batik is actually doing some work
 
 	transcoder = new PNGTranscoder();
 
 	transcoderInput = new TranscoderInput(svgInStream);
-	transcoderOutput = new TranscoderOutput(pngOutStream);
+	transcoderOutput = new TranscoderOutput(baos);	
 
 	try {
 	    transcoder.transcode(transcoderInput, transcoderOutput);
@@ -121,36 +93,18 @@ public class BatikResource {
 	}
 
 	try {
-	    pngOutStream.flush();
-	    pngOutStream.close();
+	    baos.flush();
+	    baos.close();
 	}
 
 	catch (Exception e){
 	  return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e.toString()).build();
 	}
 
-	// Here is where we return the new PNG file - see above for why a temp file...
-		    
+	ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray());
+				 
 	try {
-	    pngInStream = new FileInputStream(tmpFile.toString());
-	}
-
-	catch (Exception e){
-	    logger.error("Failed to create input stream, because " + e.toString());
-	    return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e.toString()).build();
-	}
-
-	try {
-	    tmpFile.delete();
-	}
-	
-	catch (Exception e){
-	    logger.error("Failed to delete tmp file " + tmpFile.getPath() + ", because " + e.toString());
-	    return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e.toString()).build();
-	}
-	    
-	try {
-	    pngBuffer = ImageIO.read(pngInStream);
+	    pngBuffer = ImageIO.read(bais);	    
 	}
 
 	catch (Exception e){
