@@ -31,6 +31,12 @@ Which would produce [this](examples/circles.png):
 
 ![circles](examples/circles.png)
 
+## Things that `squeegee` can't do yet
+
+* User-defined image dimensions
+* User-defined (CSS) stylesheets
+* That other thing you're wondering about that I haven't thought of yet
+
 ## See also
 
 * https://xmlgraphics.apache.org/batik/using/transcoder.html
