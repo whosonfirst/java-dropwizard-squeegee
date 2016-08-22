@@ -23,38 +23,31 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.Response;
 
-import javax.imageio.ImageIO;
-import java.awt.image.BufferedImage;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import org.apache.commons.io.IOUtils;
-    
+
+// For when we finally do image resizing (below)
+// import javax.imageio.ImageIO;
+// import java.awt.image.BufferedImage;
+
 @Path(value = "/")
 @Produces("image/png")
 public class BatikResource {
 
     private static final Logger logger = LoggerFactory.getLogger(BatikResource.class);
 
-    public BatikResource() {
-	// pass
-    }
-	
     @POST
     @Consumes(MediaType.MULTIPART_FORM_DATA)
     public Response saveAsPNG(@FormDataParam("svg") String svgDoc, @FormDataParam("height") String pngHeight, @FormDataParam("width") String pngWidth){
 
-	InputStream svgInStream;
-
 	PNGTranscoder transcoder;
 	TranscoderInput transcoderInput;
 	TranscoderOutput transcoderOutput;
-
-	InputStream pngInStream;
-	BufferedImage pngBuffer;
-
-	ByteArrayOutputStream pngByteStream;
+	
+	InputStream svgInStream;
+	ByteArrayOutputStream pngOutStream;
 
 	// Y U NO WORK?
 	
@@ -73,16 +66,18 @@ public class BatikResource {
 	    logger.error("Failed to read SVG stream, because " + e.toString());
 	    return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e.toString()).build();
 	}
-	
-	ByteArrayOutputStream baos = new ByteArrayOutputStream();
-	
+       	
 	// Here is where Batik is actually doing some work
 
+	pngOutStream = new ByteArrayOutputStream();
+	
 	transcoder = new PNGTranscoder();
-
 	transcoderInput = new TranscoderInput(svgInStream);
-	transcoderOutput = new TranscoderOutput(baos);	
+	transcoderOutput = new TranscoderOutput(pngOutStream);	
 
+	// Please make me work – I guess we have to write a temp file... ?
+	// trans.addTranscodingHint(ImageTranscoder.KEY_USER_STYLESHEET_URI, "http://...");
+	
 	try {
 	    transcoder.transcode(transcoderInput, transcoderOutput);
 	}
@@ -93,43 +88,51 @@ public class BatikResource {
 	}
 
 	try {
-	    baos.flush();
-	    baos.close();
+	    pngOutStream.flush();
+	    pngOutStream.close();
 	}
 
 	catch (Exception e){
 	  return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e.toString()).build();
 	}
 
-	ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray());
-				 
-	try {
-	    pngBuffer = ImageIO.read(bais);	    
-	}
-
-	catch (Exception e){
-	    logger.error("Failed to read input stream, because " + e.toString());
-	    return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e.toString()).build();
-	}
+	/*
 
 	if ((pngWidth != null) && (pngHeight != null)){
+
+	    ByteArrayInputStream byteInStream;
+	    BufferedImage pngBuffer;
+
+	    byteInStream = new ByteArrayInputStream(pngOutStream.toByteArray());
+				 
+	    try {
+		pngBuffer = ImageIO.read(byteInStream);	    
+	    }
+	    
+	    catch (Exception e){
+		logger.error("Failed to read input stream, because " + e.toString());
+		return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e.toString()).build();
+	    }
+	    
 	    // please resize image here...
-	}
-       
-	pngByteStream = new ByteArrayOutputStream();
-
-	try {
-	    ImageIO.write(pngBuffer, "png", pngByteStream);
-	}
-
-	catch (Exception e){
-	    logger.error("Failed to write image buffer, because " + e.toString());
-	    return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e.toString()).build();
-	}
-
-	// Here is a PNG file
 	
-	return Response.status(Response.Status.OK).entity(pngByteStream.toByteArray()).build();
+	    pngOutStream = new ByteArrayOutputStream();
+	    
+	    try {
+		ImageIO.write(pngBuffer, "png", pngOutStream);
+	    }
+	    
+	    catch (Exception e){
+		logger.error("Failed to write image buffer, because " + e.toString());
+		return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e.toString()).build();
+	    }
+	}
+
+	*/
+	
+	// Here is a PNG file	
+
+	return Response.status(Response.Status.OK).entity(pngOutStream.toByteArray()).build();
     }
     
 }
