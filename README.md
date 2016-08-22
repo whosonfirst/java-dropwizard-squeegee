@@ -24,7 +24,7 @@ Given a file like [this](examples/circles.svg):
 You would invoke `squeegee` like this:
 
 ```
-curl -s -v -X POST -F svg=@[circles.svg](examples/circles.svg) http://localhost:8080
+curl -s -v -X POST -F svg=@circles.svg http://localhost:8080
 ```
 
 Which would produce [this](examples/circles.png):
