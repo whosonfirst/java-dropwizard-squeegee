@@ -27,9 +27,9 @@ You would invoke `squeegee` like this:
 curl -s -v -X POST -F svg=@[circles.svg](examples/circles.svg) http://localhost:8080
 ```
 
-Which would produce [this](example/circles.png):
+Which would produce [this](examples/circles.png):
 
-![circles](example/circles.png)
+![circles](examples/circles.png)
 
 ## See also
 
