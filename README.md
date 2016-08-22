@@ -10,9 +10,26 @@
 
 ## Usage
 
+Given a file like [this](examples/circles.svg):
+
 ```
-curl -s -v -X POST -F svg=@example.svg http://localhost:8080
+<?xml version="1.0"?>
+<svg version="1.1" xmlns="http://www.w3.org/2000/svg">
+  <circle cx="200" cy="200" r="199" style="fill: red; stroke: blue; stroke-width: 0"/>
+  <circle cx="200" cy="200" r="150" style="fill: blue; stroke: green; stroke-width: 5"/>
+  <circle cx="200" cy="200" r="50" style="fill: yellow; stroke: orange; stroke-width: 7"/>    
+</svg>
 ```
+
+You would invoke `squeegee` like this:
+
+```
+curl -s -v -X POST -F svg=@[circles.svg](examples/circles.svg) http://localhost:8080
+```
+
+Which would produce [this](example/circles.png):
+
+![circles](example/circles.png)
 
 ## See also
 
