@@ -28,9 +28,11 @@ import org.slf4j.LoggerFactory;
 
 import org.apache.commons.io.IOUtils;
 
-// For when we finally do image resizing (below)
-// import javax.imageio.ImageIO;
-// import java.awt.image.BufferedImage;
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.awt.AlphaComposite;
+import java.awt.Graphics2D;
+import java.awt.RenderingHints;
 
 @Path(value = "/")
 @Produces("image/png")
@@ -96,8 +98,9 @@ public class BatikResource {
 	  return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e.toString()).build();
 	}
 
-	/*
-
+	// The reality is that this doesn't really produce very good results...
+	// (20160822/thisisaaronland)
+	
 	if ((pngWidth != null) && (pngHeight != null)){
 
 	    ByteArrayInputStream byteInStream;
@@ -113,13 +116,29 @@ public class BatikResource {
 		logger.error("Failed to read input stream, because " + e.toString());
 		return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e.toString()).build();
 	    }
+
+	    int w = Integer.parseInt(pngWidth);
+	    int h = Integer.parseInt(pngHeight);
 	    
-	    // please resize image here...
-	
+	    int type = pngBuffer.getType() == 0? BufferedImage.TYPE_INT_ARGB : pngBuffer.getType();
+	    BufferedImage resizedImage = new BufferedImage(w, h, type);
+
+	    Graphics2D g = resizedImage.createGraphics();
+	    g.drawImage(pngBuffer, 0, 0, w, h, null);
+	    g.dispose();
+	    g.setComposite(AlphaComposite.Src);
+
+	    g.setRenderingHint(RenderingHints.KEY_INTERPOLATION,
+	    RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+	    g.setRenderingHint(RenderingHints.KEY_RENDERING,
+	    RenderingHints.VALUE_RENDER_QUALITY);
+	    g.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+	    RenderingHints.VALUE_ANTIALIAS_ON);
+	    
 	    pngOutStream = new ByteArrayOutputStream();
 	    
 	    try {
-		ImageIO.write(pngBuffer, "png", pngOutStream);
+		ImageIO.write(resizedImage, "png", pngOutStream);
 	    }
 	    
 	    catch (Exception e){
@@ -127,8 +146,6 @@ public class BatikResource {
 		return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e.toString()).build();
 	    }
 	}
-
-	*/
 	
 	// Here is a PNG file	
 
