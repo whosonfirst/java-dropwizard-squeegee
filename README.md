@@ -41,4 +41,3 @@ Which would produce [this](examples/circles.png):
 
 * https://xmlgraphics.apache.org/batik/using/transcoder.html
 * http://www.dropwizard.io/1.0.0/docs/index.html
-* https://github.com/straup/java-ws-raster/blob/master/src/info/aaronland/svg/WsRaster.java
