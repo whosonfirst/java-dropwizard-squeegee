@@ -1,18 +1,15 @@
 FROM maven:alpine AS build-env
 
-WORKDIR /opt/dropwizard
+ADD . /build
 
-COPY pom.xml /opt/dropwizard
-
-RUN mvn clean install
+RUN cd /build; mvn clean install
 
 FROM openjdk:alpine
 
 WORKDIR /opt/dropwizard
 
-COPY config.yml /opt/dropwizard/
-
-COPY --from=build-env target/squeegee-0.1.jar /opt/dropwizard/
+COPY --from=build-env /build/config.yml /opt/dropwizard/
+COPY --from=build-env /build/target/squeegee-0.1.jar /opt/dropwizard/
 
 EXPOSE 8080
 
