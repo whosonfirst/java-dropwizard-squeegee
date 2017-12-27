@@ -1,4 +1,4 @@
-package com.mapzen.whosonfirst.squeegee;
+package org.whosonfirst.squeegee;
 
 import io.dropwizard.Configuration;
 import com.fasterxml.jackson.annotation.JsonProperty;

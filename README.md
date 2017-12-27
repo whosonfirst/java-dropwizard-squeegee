@@ -1,4 +1,4 @@
-# squeegee
+# java-dropwizard-squeegee
 
 `squeegee` is a simple [Dropwizard-based](http://www.dropwizard.io/) HTTP pony to convert SVG documents in to PNG files using the [Batik](https://xmlgraphics.apache.org/batik) SVG transcoder.
 

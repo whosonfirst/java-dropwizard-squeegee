@@ -1,4 +1,4 @@
-package com.mapzen.whosonfirst.squeegee;
+package org.whosonfirst.squeegee;
 
 import io.dropwizard.Application;
 import io.dropwizard.setup.Bootstrap;
@@ -7,7 +7,7 @@ import io.dropwizard.forms.MultiPartBundle;
 
 import java.net.URL;
 
-import com.mapzen.whosonfirst.squeegee.squeegeeConfiguration;
+import org.whosonfirst.squeegee.squeegeeConfiguration;
 
 public class squeegeeApplication extends Application<squeegeeConfiguration> {
 

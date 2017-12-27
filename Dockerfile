@@ -1,3 +1,7 @@
+# docker build -t squeegee .
+
+# $> docker run -it -p 6161:8080 squeegee
+
 FROM maven:alpine AS build-env
 
 ADD . /build

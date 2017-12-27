@@ -1,4 +1,4 @@
-package com.mapzen.whosonfirst.squeegee;
+package org.whosonfirst.squeegee;
 
 // https://xmlgraphics.apache.org/batik/using/transcoder.html
 // https://xmlgraphics.apache.org/batik/javadoc/org/apache/batik/transcoder/TranscoderInput.html
