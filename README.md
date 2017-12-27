@@ -43,7 +43,7 @@ curl -s -v -X POST -F svg=@circles.svg http://localhost:6161 > circles.png
 
 ## Caveats
 
-* This does not have a (Dropwizard) health check yet. It should.
+* This does not have a (Dropwizard) health check yet. [It should](https://github.com/whosonfirst/java-dropwizard-squeegee/issues/1).
 
 ## Things that `squeegee` can't do yet
 
