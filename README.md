@@ -31,6 +31,20 @@ Which would produce [this](examples/circles.png):
 
 ![circles](examples/circles.png)
 
+## Docker
+
+[Yes](Dockerfile). For example:
+
+```
+docker build -t squeegee .
+docker run -it -p 6161:8080 squeegee
+curl -s -v -X POST -F svg=@circles.svg http://localhost:6161 > circles.png
+```
+
+## Caveats
+
+* This does not have a (Dropwizard) health check yet. It should.
+
 ## Things that `squeegee` can't do yet
 
 * User-defined image dimensions - or more specifically, it doesn't resize images particularly well yet; you can pass a `height` and `width` parameter with your request and see for yourself but you should be aware _this functionality might still be removed_

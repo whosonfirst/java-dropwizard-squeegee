@@ -115,7 +115,7 @@
     </dependencies>
   </dependencyManagement>
   <properties>
-    <dropwizard.version>1.0.0</dropwizard.version>
+    <dropwizard.version>1.2.2</dropwizard.version>
     <mainClass>org.whosonfirst.squeegee.squeegeeApplication</mainClass>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
